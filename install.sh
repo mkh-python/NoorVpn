@@ -195,7 +195,7 @@ chown root:www-data "$CONFIG_DIR"
 WEBHOOK_SECRET=$(openssl rand -hex 32)
 printf '%s\n' "$WEBHOOK_SECRET" > "$CONFIG_DIR/webhook-secret"
 chown root:www-data "$CONFIG_DIR/webhook-secret"; chmod 0640 "$CONFIG_DIR/webhook-secret"
-install -d -m 0755 /var/www /var/lib/noorvpn-acme/.well-known/acme-challenge
+install -d -m 0755 /var/www /var/lib/noorvpn-acme /var/lib/noorvpn-acme/.well-known /var/lib/noorvpn-acme/.well-known/acme-challenge
 mv -- "$STAGE" "$APP_DIR"; STAGE=''
 chown -R root:www-data "$APP_DIR"
 find "$APP_DIR" -type d -exec chmod 0750 {} +

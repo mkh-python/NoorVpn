@@ -12,6 +12,15 @@ class InstallerTests(unittest.TestCase):
         self.assertEqual(p.returncode,0);self.assertIn('NoorVpn',p.stdout)
         p=subprocess.run(['bash',str(ROOT/'install.sh'),'check','--domain','bad;example'],cwd=ROOT,capture_output=True,text=True)
         self.assertNotEqual(p.returncode,0);self.assertIn('Invalid domain',p.stderr)
+    def test_acme_directories_are_traversable_with_private_umask(self):
+        source=(ROOT/'install.sh').read_text()
+        line=next(line for line in source.splitlines() if line.startswith('install -d -m 0755 ') and '/var/lib/noorvpn-acme/.well-known/acme-challenge' in line)
+        with tempfile.TemporaryDirectory() as tmp:
+            command=line.replace('/var/www',tmp+'/var/www').replace('/var/lib/noorvpn-acme',tmp+'/var/lib/noorvpn-acme')
+            subprocess.run(['bash','-c','umask 077; '+command],check=True)
+            base=Path(tmp)/'var/lib/noorvpn-acme'
+            for directory in [base,base/'.well-known',base/'.well-known/acme-challenge']:
+                self.assertTrue(directory.stat().st_mode & 0o001, str(directory)+' blocks Nginx traversal')
     def test_cron_targets_exist(self):
         s=(ROOT/'deploy/cron.schedule').read_text()
         for line in s.splitlines():
