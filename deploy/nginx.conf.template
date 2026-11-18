@@ -1,0 +1,41 @@
+server {
+    listen @HTTPS_PORT@ ssl;
+    server_name @DOMAIN@;
+    root /var/www/noorvpn;
+    index index.php index.html;
+    ssl_certificate /etc/letsencrypt/live/@DOMAIN@/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/@DOMAIN@/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    client_max_body_size 16m;
+    autoindex off;
+    add_header X-Content-Type-Options nosniff always;
+    location = /healthz { access_log off; default_type text/plain; return 200 'NoorVpn\n'; }
+    location = / { return 302 /panel/; }
+    location ^~ /storage/ { return 404; }
+    location ^~ /cronbot/ { return 404; }
+    location ^~ /vendor/ { return 404; }
+    location ^~ /bin/ { return 404; }
+    location ^~ /tests/ { return 404; }
+    location ^~ /docs/ { return 404; }
+    location ^~ /deploy/ { return 404; }
+    location ^~ /lang/ { return 404; }
+    location ^~ /ibsng/ { return 404; }
+    location ^~ /panel/inc/ { return 404; }
+    # Reseller-generated PHP bots require their own reviewed deployment.
+    location ^~ /vpnbot/ { return 404; }
+    location /app/ { try_files $uri $uri/ /app/index.php; }
+    location /sub/ { rewrite ^/sub/(.+)$ /sub/index.php last; }
+    location ~ /\. { return 404; }
+    location ~* \.(?:sql|bak|log|ini|env|sh|md|lock|json|zip|tar|gz|txt|py)$ { return 404; }
+    location ~ ^/(?:index|sub/index|app/index|api/(?:category|discount|invoice|keyboard|log|miniapp|panels|payment|product|service|settings|statbot|users|verify)|panel/(?:index|invoice|keyboard|login|logout|payment|product|service|settings|user|user_action|users)|payment/(?:aqayepardakht|iranpay1|iranpay2|nowpayment|zarinpal))\.php$ {
+        try_files $uri =404;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param HTTPS on;
+        fastcgi_param HTTP_PROXY '';
+        fastcgi_pass unix:/run/php/noorvpn.sock;
+    }
+    location ~ \.php$ { return 404; }
+    location /api/ { rewrite ^/api/([a-z_]+)$ /api/$1.php last; return 404; }
+    location / { try_files $uri $uri/ =404; }
+}

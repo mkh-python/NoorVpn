@@ -1,0 +1,17 @@
+*/15 * * * * statusday.php
+* * * * * croncard.php
+* * * * * NoticationsService.php
+*/5 * * * * payment_expire.php
+* * * * * sendmessage.php
+*/3 * * * * plisio.php
+* * * * * activeconfig.php
+* * * * * disableconfig.php
+* * * * * iranpay1.php
+0 */5 * * * backupbot.php
+*/2 * * * * gift.php
+*/30 * * * * expireagent.php
+*/15 * * * * on_hold.php
+*/2 * * * * configtest.php
+*/15 * * * * uptime_node.php
+*/15 * * * * uptime_panel.php
+* * * * * lottery.php

@@ -1,0 +1,35 @@
+name: NoorVpn checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y php-cli php-mysql php-curl php-mbstring php-xml php-zip php-gd php-intl php-bcmath composer nginx mysql-server python3
+      - name: Install locked dependencies without plugins or scripts
+        run: composer --no-plugins --no-scripts install --no-interaction --no-dev --prefer-dist
+      - name: Check PHP platform
+        run: composer --no-plugins --no-scripts check-platform-reqs --no-dev
+      - name: Audit locked dependencies
+        run: composer --no-plugins --no-scripts audit --locked --no-dev
+      - name: Unit and regression tests
+        run: python3 -m unittest discover -s tests -v
+      - name: PHP and installer static checks
+        run: python3 test_static.py
+      - name: Isolated Nginx routing checks
+        run: sudo python3 tests/nginx_smoke.py
+      - name: Temporary MySQL schema and registration checks
+        env:
+          NOORVPN_MYSQL_ADMIN_PASSWORD: root
+        run: |
+          sudo systemctl start mysql
+          python3 tests/schema_smoke.py
+      - name: Build source archive
+        run: python3 bin/package.py --output "$RUNNER_TEMP/NoorVpn-source.zip"

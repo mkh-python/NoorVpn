@@ -1,0 +1,24 @@
+# Composer-managed dependencies — installed by install.sh at install/update time.
+# Never commit these; run `composer install` to recreate them.
+/vendor/
+
+# Composer runtime artifacts
+composer.phar
+
+# Runtime / generated files
+error_log
+/api/hash.txt
+*.xlsx
+graphify-out
+# Deployment secrets and generated application data
+/config.local.*
+/storage/
+/api/hash.txt
+*.env
+*.pem
+*.key
+*.sql
+*.db
+*.sqlite*
+__pycache__/
+.superpowers/
