@@ -70,6 +70,11 @@ try:
     if result.returncode:
         print(result.stderr,file=sys.stderr);sys.exit(result.returncode)
 
+    result=subprocess.run(['python3','tests/miniapp_smoke.py'],cwd=root,capture_output=True,text=True,env={**os.environ,'NOORVPN_TEST_DATABASE':name})
+    print(result.stdout,end='')
+    if result.returncode:
+        print(result.stderr,file=sys.stderr);sys.exit(result.returncode)
+
     for check in ['tests/report_database.php','tests/report_flow_smoke.php']:
         result=subprocess.run(['php',check],cwd=root,capture_output=True,text=True)
         print(result.stdout,end='')
